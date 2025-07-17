@@ -59,7 +59,7 @@ Gui, Add, Text, x90 y383, Movement Hold Time (Seconds)
 Gui, Add, Button, x10 y420 w280 h30 gSaveSettings, Save Settings
 
 Gui, Add, Button, x10 y455 w140 h30 gStartMacro, Start Macro (F1)
-Gui, Add, Button, x150 y455 w140 h30 gStopMacro, Stop Macro (F2)
+Gui, Add, Button, x150 y455 w140 h30 Reload, Stop Macro (F2)
 
 Gui, Show, w300 h500, Prospecting Macro
 return
@@ -116,12 +116,9 @@ MacroRunning := true
 SetTimer, MacroLoop, -1
 return
 
-StopMacro:
-MacroRunning := false
-return
-
 MacroLoop:
 while (MacroRunning) {
+    Loops++
     Send {%FirstDir% down}
     Sleep, % DirectionTime * 1000
     Send {%FirstDir% up}
@@ -149,22 +146,17 @@ while (MacroRunning) {
     
     if (AutoSell = 1 && Loops >= SellRate) {
         Loops := 0
-        Send {` Down}
-        Sleep 1
-        Send {` Up}
-        Sleep 1000
+        Send g
+        Sleep, 1000
         MouseMove, %SellX%, %SellY%, 0
+        Sleep, 250
         Click
-        Sleep 5000
-        Send {` Down}
-        Sleep 1
-        Send {` Up}
+        Sleep, 3500
+        Send g
     }
-
-    Loops++
     Sleep, % ActionDelay * 1000
 }
 return
 
 F1::Gosub, StartMacro
-F2::Gosub, StopMacro
+F2::Reload
