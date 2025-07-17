@@ -1,4 +1,4 @@
-﻿#NoEnv
+#NoEnv
 #SingleInstance
 SendMode Input
 SetWorkingDir %A_ScriptDir%
@@ -40,26 +40,28 @@ Gui, Add, GroupBox, x10 y110 w280 h55, Shake Settings
 Gui, Add, Edit, x20 y135 w60 h20 vShakeHoldTime, %ShakeHoldTime%
 Gui, Add, Text, x90 y138, Shake Hold Time (Seconds)
 
-Gui, Add, GroupBox, x10 y180 w280 h110, Sell Settings
-Gui, Add, CheckBox, x20 y200 vAutoSell Checked%AutoSell%, Auto-Sell Items
-Gui, Add, Edit, x20 y225 w60 h20 vSellRate, %SellRate%
-Gui, Add, Text, x90 y228, Sell every X Loops
-Gui, Add, Button, x20 y255 gSetSellPosition, Set Sell All Button Position
+Gui, Add, GroupBox, x10 y175 w280 h110, Sell Settings
+Gui, Add, CheckBox, x20 y195 vAutoSell Checked%AutoSell%, Auto-Sell Items
+Gui, Add, Edit, x20 y220 w60 h20 vSellRate, %SellRate%
+Gui, Add, Text, x90 y223, Sell every X Loops
+Gui, Add, Button, x20 y250 gSetSellPosition, Set Sell All Button Position
 
 
-Gui, Add, GroupBox, x10 y310 w280 h120, Other Settings
-Gui, Add, Edit, x20 y335 w60 h20 vActionDelay, %ActionDelay%
-Gui, Add, Text, x90 y338, Delay Between Actions (Seconds)
-Gui, Add, DropDownList, x20 y365 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
+Gui, Add, GroupBox, x10 y295 w280 h120, Other Settings
+Gui, Add, Edit, x20 y320 w60 h20 vActionDelay, %ActionDelay%
+Gui, Add, Text, x90 y323, Delay Between Actions (Seconds)
+Gui, Add, DropDownList, x20 y350 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
 GuiControl, ChooseString, DirectionChoice, %savedChoice%
-Gui, Add, Text, x150 y368, Movement Type
-Gui, Add, Edit, x20 y395 w60 h20 vDirectionTime, %DirectionTime%
-Gui, Add, Text, x90 y398, Movement Hold Time (Seconds)
+Gui, Add, Text, x150 y353, Movement Type
+Gui, Add, Edit, x20 y380 w60 h20 vDirectionTime, %DirectionTime%
+Gui, Add, Text, x90 y383, Movement Hold Time (Seconds)
 
-Gui, Add, Button, x10 y440 w140 h30 gStartMacro, Start Macro (F1)
-Gui, Add, Button, x150 y440 w140 h30 gStopMacro, Stop Macro (F2)
+Gui, Add, Button, x10 y420 w280 h30 gSaveSettings, Save Settings
 
-Gui, Show, w300 h490, Prospecting Macro
+Gui, Add, Button, x10 y455 w140 h30 gStartMacro, Start Macro (F1)
+Gui, Add, Button, x150 y455 w140 h30 gStopMacro, Stop Macro (F2)
+
+Gui, Show, w300 h500, Prospecting Macro
 return
 
 GuiClose:
@@ -90,10 +92,7 @@ ToolTip
 Gui, Show
 return
 
-StartMacro:
-Gui, Submit, NoHide
-MacroRunning := true
-SetTimer, MacroLoop, -1
+SaveSettings:
 IniWrite, %RepeatClicks%, settings.ini, Config, RepeatClicks
 IniWrite, %DigHoldTime%, settings.ini, Config, DigHoldTime
 IniWrite, %ShakeHoldTime%, settings.ini, Config, ShakeHoldTime
@@ -106,6 +105,15 @@ IniWrite, %DirectionTime%, settings.ini, Config, DirectionTime
 IniWrite, %DirectionChoice%, settings.ini, Config, DirectionChoice
 IniWrite, %FirstDir%, settings.ini, Config, FirstDir
 IniWrite, %SecondDir%, settings.ini, Config, SecondDir
+ToolTip, Seting Saved Successfully!
+Sleep, 1000
+ToolTip
+return
+
+StartMacro:
+Gui, Submit, NoHide
+MacroRunning := true
+SetTimer, MacroLoop, -1
 return
 
 StopMacro:
@@ -140,14 +148,14 @@ while (MacroRunning) {
     Click up
     
     if (AutoSell = 1 && Loops >= SellRate) {
-        Repeats := 0
+        Loops := 0
         Send {` Down}
         Sleep 1
         Send {` Up}
         Sleep 1000
         MouseMove, %SellX%, %SellY%, 0
         Click
-        Sleep 7500
+        Sleep 5000
         Send {` Down}
         Sleep 1
         Send {` Up}
