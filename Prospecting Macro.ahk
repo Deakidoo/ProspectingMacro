@@ -3,7 +3,8 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 
-global Loops := 0
+global Loop := 0
+global TotalLoops :=0
 global RepeatClicks := 10
 global DigHoldTime := 0.65
 global ShakeHoldTime := 25
@@ -32,68 +33,45 @@ IniRead, FirstDir, settings.ini, Config, FirstDir, %FirstDir%
 IniRead, SecondDir, settings.ini, Config, SecondDir, %SecondDir%
 IniRead, webhookURL, settings.ini, Config, webhookURL, %webhookURL%
 
-Gui, Add, GroupBox, x10 y10 w280 h90, Dig Settings
-Gui, Add, Edit, x20 y35 w60 h20 vRepeatClicks, %RepeatClicks%
-Gui, Add, Text, x90 y38, Dig Repeat Count
-Gui, Add, Edit, x20 y65 w60 h20 vDigHoldTime, %DigHoldTime%
-Gui, Add, Text, x90 y68, Dig Hold Time (Seconds)
+Gui, Add, GroupBox, x10 y10 w280 h75, Dig Settings
+Gui, Add, Edit, x20 y30 w30 h20 vRepeatClicks, %RepeatClicks%
+Gui, Add, Text, x55 y33, Dig Repeat Count
+Gui, Add, Edit, x20 y55 w30 h20 vDigHoldTime, %DigHoldTime%
+Gui, Add, Text, x55 y58, Dig Hold Time (Seconds)
 
-Gui, Add, GroupBox, x10 y110 w280 h55, Shake Settings
-Gui, Add, Edit, x20 y135 w60 h20 vShakeHoldTime, %ShakeHoldTime%
-Gui, Add, Text, x90 y138, Shake Hold Time (Seconds)
+Gui, Add, GroupBox, x10 y90 w280 h50, Shake Settings
+Gui, Add, Edit, x20 y110 w30 h20 vShakeHoldTime, %ShakeHoldTime%
+Gui, Add, Text, x55 y113, Shake Hold Time (Seconds)
 
-Gui, Add, GroupBox, x10 y175 w280 h110, Sell Settings
-Gui, Add, CheckBox, x20 y195 vAutoSell Checked%AutoSell%, Auto-Sell Items
-Gui, Add, Edit, x20 y220 w60 h20 vSellRate, %SellRate%
-Gui, Add, Text, x90 y223, Sell every X Loops
-Gui, Add, Button, x20 y250 gSetSellPosition, Set Sell All Button Position
+Gui, Add, GroupBox, x10 y145 w280 h95, Sell Settings
+Gui, Add, CheckBox, x20 y165 vAutoSell Checked%AutoSell%, Auto-Sell Items
+Gui, Add, Edit, x20 y185 w30 h20 vSellRate, %SellRate%
+Gui, Add, Text, x55 y188, Sell every X Loops
+Gui, Add, Button, x20 y210 gSetSellPosition, Set Sell All Button Position
 
-
-Gui, Add, GroupBox, x10 y295 w280 h140, Other Settings
-Gui, Add, Edit, x20 y320 w60 h20 vActionDelay, %ActionDelay%
-Gui, Add, Text, x90 y323, Delay Between Actions (Seconds)
-Gui, Add, DropDownList, x20 y350 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
+Gui, Add, GroupBox, x10 y240 w280 h75, Movement Settings
+Gui, Add, DropDownList, x20 y260 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
 GuiControl, ChooseString, DirectionChoice, %savedChoice%
-Gui, Add, Text, x150 y353, Movement Type
-Gui, Add, Edit, x20 y380 w60 h20 vDirectionTime, %DirectionTime%
-Gui, Add, Text, x90 y383, Movement Hold Time (Seconds)
-Gui, Add, Edit, x20 y405 w120 h20 vwebhookURL, %webhookURL%
-Gui, Add, Text, x150 y408, Discord Webhook Link
+Gui, Add, Text, x150 y263, Movement Type
+Gui, Add, Edit, x20 y285 w30 h20 vDirectionTime, %DirectionTime%
+Gui, Add, Text, x55 y288, Movement Hold Time (Seconds)
 
-Gui, Add, Button, x10 y440 w280 h30 gSaveSettings, Save Settings
+Gui, Add, GroupBox, x10 y315 w280 h75, Other Settings
+Gui, Add, Edit, x20 y335 w30 h20 vActionDelay, %ActionDelay%
+Gui, Add, Text, x55 y338, Delay Between Actions (Seconds)
+Gui, Add, Edit, x20 y360 w120 h20 vwebhookURL, %webhookURL%
+Gui, Add, Text, x150 y363, Discord Webhook Link
 
-Gui, Add, Button, x10 y475 w140 h30 gStartMacro, Start Macro (F1)
-Gui, Add, Button, x150 y475 w140 h30 Reload, Stop Macro (F2)
+Gui, Add, Button, x10 y395 w280 h30 gSaveSettings, Save Settings
 
-Gui, Show, w300 h520, Prospecting Macro
+Gui, Add, Button, x10 y425 w140 h30 gStartMacro, Start Macro (F1)
+Gui, Add, Button, x150 y425 w140 h30 Reload, Stop Macro (F2)
+
+Gui, Show, w300 h465, Prospecting Macro
 return
 
 GuiClose:
 ExitApp
-return
-
-UpdateDirection:
-Gui, Submit, NoHide
-if (DirectionChoice = "Forward/Backward") {
-    FirstDir := "w"
-    SecondDir := "s"
-} else {
-    FirstDir := "a"
-    SecondDir := "d"
-}
-GuiControl,, FirstDir, %FirstDir%
-GuiControl,, SecondDir, %SecondDir%
-return
-
-SetSellPosition:
-Gui, Hide
-ToolTip, Click on Sell All button to set its position
-KeyWait, LButton, D
-MouseGetPos, SellX, SellY
-ToolTip, Sell All Position set!
-Sleep, 1000
-ToolTip
-Gui, Show
 return
 
 SendDiscordMessage(webhookURL, message) {
@@ -120,6 +98,30 @@ SendDiscordMessage(webhookURL, message) {
 
 }
 
+UpdateDirection:
+Gui, Submit, NoHide
+if (DirectionChoice = "Forward/Backward") {
+    FirstDir := "w"
+    SecondDir := "s"
+} else {
+    FirstDir := "a"
+    SecondDir := "d"
+}
+GuiControl,, FirstDir, %FirstDir%
+GuiControl,, SecondDir, %SecondDir%
+return
+
+SetSellPosition:
+Gui, Hide
+ToolTip, Click on Sell All button to set its position
+KeyWait, LButton, D
+MouseGetPos, SellX, SellY
+ToolTip, Sell All Position set!
+Sleep, 1000
+ToolTip
+Gui, Show
+return
+
 SaveSettings:
 Gui, Submit, NoHide
 IniWrite, %RepeatClicks%, settings.ini, Config, RepeatClicks
@@ -142,6 +144,7 @@ return
 
 StartMacro:
 Gui, Submit, NoHide
+SendDiscordMessage(webhookURL, " Macro Started" )
 MacroRunning := true
 SetTimer, MacroLoop, -1
 return
@@ -149,7 +152,7 @@ return
 MacroLoop:
 while (MacroRunning) {
     Loop++
-    Loops++
+    TotalLoops++
     ToolTip, Walking
     Send {%FirstDir% down}
     Sleep, % DirectionTime * 1000
@@ -179,9 +182,9 @@ while (MacroRunning) {
     Sleep, % ShakeHoldTime * 1000
     Click up
     
-    if (AutoSell = 1 && Loops >= SellRate) {
+    if (AutoSell = 1 && Loop >= SellRate) {
         ToolTip, Auto Selling
-        Loops := 0
+        Loop := 0
         Send g
         Sleep, 1000
         Random, randX, -10, 10
@@ -197,7 +200,7 @@ while (MacroRunning) {
     }
 
     ToolTip, Looping
-    SendDiscordMessage(webhookURL, " Loop Completed, Current Loop: " Loop )
+    SendDiscordMessage(webhookURL, " Loop Completed, Total Loops Completed: " TotalLoops )
     Sleep, % ActionDelay * 1000
 }
 return
