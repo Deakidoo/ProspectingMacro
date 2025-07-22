@@ -1,13 +1,18 @@
+; Created by Deakidoo!
+
 #NoEnv
 #SingleInstance
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 
+global DigX := 1162
+global DigY := 472
+global DigGX := 1206
+global DigGY := 819
+global ShakeX := 731 
+global ShakeY := 815
 global Loop := 0
 global TotalLoops :=0
-global RepeatClicks := 10
-global DigHoldTime := 0.65
-global ShakeHoldTime := 25
 global ActionDelay := 1.5
 global DirectionTime := 1
 global AutoSell := 0
@@ -19,9 +24,12 @@ global webhookURL :=
 global MacroRunning := false
 global MacroPaused := false
 
-IniRead, RepeatClicks, settings.ini, Config, RepeatClicks, %RepeatClicks%
-IniRead, DigHoldTime, settings.ini, Config, DigHoldTime, %DigHoldTime%
-IniRead, ShakeHoldTime, settings.ini, Config, ShakeHoldTime, %ShakeHoldTime%
+IniRead, DigX, settings.ini, Config, DigX, %DigX%
+IniRead, DigY, settings.ini, Config, DigY, %DigY%
+IniRead, DigGX, settings.ini, Config, DigGX, %DigGX%
+IniRead, DigGY, settings.ini, Config, DigGY, %DigGY%
+IniRead, ShakeX, settings.ini, Config, ShakeX, %ShakeX%
+IniRead, ShakeY, settings.ini, Config, ShakeY, %ShakeY%
 IniRead, ActionDelay, settings.ini, Config, ActionDelay, %ActionDelay%
 IniRead, DirectionTime, settings.ini, Config, DirectionTime, %DirectionTime%
 IniRead, savedChoice, settings.ini, Config, DirectionChoice, %DirectionChoice%
@@ -33,41 +41,36 @@ IniRead, FirstDir, settings.ini, Config, FirstDir, %FirstDir%
 IniRead, SecondDir, settings.ini, Config, SecondDir, %SecondDir%
 IniRead, webhookURL, settings.ini, Config, webhookURL, %webhookURL%
 
-Gui, Add, GroupBox, x10 y10 w280 h75, Dig Settings
-Gui, Add, Edit, x20 y30 w30 h20 vRepeatClicks, %RepeatClicks%
-Gui, Add, Text, x55 y33, Dig Repeat Count
-Gui, Add, Edit, x20 y55 w30 h20 vDigHoldTime, %DigHoldTime%
-Gui, Add, Text, x55 y58, Dig Hold Time (Seconds)
+Gui, Add, GroupBox, x10 y0 w280 h95, Positions
+Gui, Add, Button, x20 y15 gSetDigHoldPosition, Dig Charge Position
+Gui, Add, Button, x20 y40 gSetDigGuagePosition, Dig Repeat Guage (Far Right Of Pan Storage)
+Gui, Add, Button, x20 y65 gSetShakeGuagePosition, Shake Guage (Far Left Of Pan Storage)
 
-Gui, Add, GroupBox, x10 y90 w280 h50, Shake Settings
-Gui, Add, Edit, x20 y110 w30 h20 vShakeHoldTime, %ShakeHoldTime%
-Gui, Add, Text, x55 y113, Shake Hold Time (Seconds)
+Gui, Add, GroupBox, x10 y100 w280 h95, Sell Settings
+Gui, Add, CheckBox, x20 y115 vAutoSell Checked%AutoSell%, Auto-Sell Items
+Gui, Add, Edit, x20 y135 w30 h20 vSellRate, %SellRate%
+Gui, Add, Text, x55 y138, Sell every X Loops
+Gui, Add, Button, x20 y160 gSetSellPosition, Set Sell All Button Position
 
-Gui, Add, GroupBox, x10 y145 w280 h95, Sell Settings
-Gui, Add, CheckBox, x20 y165 vAutoSell Checked%AutoSell%, Auto-Sell Items
-Gui, Add, Edit, x20 y185 w30 h20 vSellRate, %SellRate%
-Gui, Add, Text, x55 y188, Sell every X Loops
-Gui, Add, Button, x20 y210 gSetSellPosition, Set Sell All Button Position
-
-Gui, Add, GroupBox, x10 y240 w280 h75, Movement Settings
-Gui, Add, DropDownList, x20 y260 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
+Gui, Add, GroupBox, x10 y200 w280 h75, Movement Settings
+Gui, Add, DropDownList, x20 y220 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
 GuiControl, ChooseString, DirectionChoice, %savedChoice%
-Gui, Add, Text, x150 y263, Movement Type
-Gui, Add, Edit, x20 y285 w30 h20 vDirectionTime, %DirectionTime%
-Gui, Add, Text, x55 y288, Movement Hold Time (Seconds)
+Gui, Add, Text, x150 y223, Movement Type
+Gui, Add, Edit, x20 y245 w30 h20 vDirectionTime, %DirectionTime%
+Gui, Add, Text, x55 y248, Movement Hold Time (Seconds)
 
-Gui, Add, GroupBox, x10 y315 w280 h75, Other Settings
-Gui, Add, Edit, x20 y335 w30 h20 vActionDelay, %ActionDelay%
-Gui, Add, Text, x55 y338, Delay Between Actions (Seconds)
-Gui, Add, Edit, x20 y360 w120 h20 vwebhookURL, %webhookURL%
-Gui, Add, Text, x150 y363, Discord Webhook Link
+Gui, Add, GroupBox, x10 y280 w280 h75, Other Settings
+Gui, Add, Edit, x20 y300 w30 h20 vActionDelay, %ActionDelay%
+Gui, Add, Text, x55 y303, Delay Between Actions (Seconds)
+Gui, Add, Edit, x20 y325 w120 h20 vwebhookURL, %webhookURL%
+Gui, Add, Text, x150 y325, Discord Webhook Link
 
-Gui, Add, Button, x10 y395 w280 h30 gSaveSettings, Save Settings
+Gui, Add, Button, x10 y360 w280 h30 gSaveSettings, Save Settings
 
-Gui, Add, Button, x10 y425 w140 h30 gStartMacro, Start Macro (F1)
-Gui, Add, Button, x150 y425 w140 h30 Reload, Stop Macro (F2)
+Gui, Add, Button, x10 y390 w140 h30 gStartMacro, Start Macro (F1)
+Gui, Add, Button, x150 y390 w140 h30 Reload, Stop Macro (F2)
 
-Gui, Show, w300 h465, Prospecting Macro
+Gui, Show, w300 h430, Prospecting Macro
 return
 
 GuiClose:
@@ -122,11 +125,47 @@ ToolTip
 Gui, Show
 return
 
+SetDigHoldPosition:
+Gui, Hide
+ToolTip, Click on the green area of the dig charge bar
+KeyWait, LButton, D
+MouseGetPos, DigX, DigY
+ToolTip, Position Set!
+Sleep, 1000
+ToolTip
+Gui, Show
+return
+
+SetDigGuagePosition:
+Gui, Hide
+ToolTip, Click on the far left of the pan storage
+KeyWait, LButton, D
+MouseGetPos, DigGX, DigGY
+ToolTip, Position Set!
+Sleep, 1000
+ToolTip
+Gui, Show
+return
+
+SetShakeGuagePosition:
+Gui, Hide
+ToolTip, Click on the far right of the pan storage
+KeyWait, LButton, D
+MouseGetPos, ShakeX, ShakeY
+ToolTip, Position Set!
+Sleep, 1000
+ToolTip
+Gui, Show
+return
+
 SaveSettings:
 Gui, Submit, NoHide
-IniWrite, %RepeatClicks%, settings.ini, Config, RepeatClicks
-IniWrite, %DigHoldTime%, settings.ini, Config, DigHoldTime
-IniWrite, %ShakeHoldTime%, settings.ini, Config, ShakeHoldTime
+IniWrite, %DigX%, settings.ini, Config, DigX
+IniWrite, %Dig%, settings.ini, Config, DigY
+IniWrite, %DigGX%, settings.ini, Config, DigGX
+IniWrite, %DigG%, settings.ini, Config, DigGY
+IniWrite, %ShakeX%, settings.ini, Config, ShakeX
+IniWrite, %Shake%, settings.ini, Config, ShakeY
 IniWrite, %ActionDelay%, settings.ini, Config, ActionDelay
 IniWrite, %AutoSell%, settings.ini, Config, AutoSell
 IniWrite, %SellRate%, settings.ini, Config, SellRate
@@ -145,6 +184,7 @@ return
 StartMacro:
 Gui, Submit, NoHide
 SendDiscordMessage(webhookURL, " Macro Started" )
+global Loop = 0
 MacroRunning := true
 SetTimer, MacroLoop, -1
 return
@@ -160,9 +200,17 @@ while (MacroRunning) {
     Sleep, % ActionDelay * 1000
     
     ToolTip, Digging
-    Loop, %RepeatClicks% {
+    Loop, {
+        PixelGetColor, PixelColor, % DigGX, DigGY, RGB
+        if (PixelColor != 0x8C8C8C)
+            break
         Click down
-        Sleep, % DigHoldTime * 1000
+        Loop {
+            PixelGetColor, PixelColor, DigX, DigY, RGB
+            if (PixelColor = 0xFFFFFF)
+                break
+            Sleep, 5
+        }
         Click up
         Sleep, 1500
     }
@@ -179,8 +227,14 @@ while (MacroRunning) {
     Click up
     ToolTip, Shaking
     Click down
-    Sleep, % ShakeHoldTime * 1000
+    Loop {
+        PixelGetColor, PixelColor, ShakeX, ShakeY, RGB
+        if (PixelColor = 0x8C8C8C)
+            break
+        Sleep, 10
+    }
     Click up
+    Sleep 1500
     
     if (AutoSell = 1 && Loop >= SellRate) {
         ToolTip, Auto Selling
