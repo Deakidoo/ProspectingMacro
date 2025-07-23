@@ -43,8 +43,8 @@ IniRead, webhookURL, settings.ini, Config, webhookURL, %webhookURL%
 
 Gui, Add, GroupBox, x10 y0 w280 h95, Positions
 Gui, Add, Button, x20 y15 gSetDigHoldPosition, Dig Charge Position
-Gui, Add, Button, x20 y40 gSetDigGuagePosition, Dig Repeat Guage (Far Right Of Pan Storage)
-Gui, Add, Button, x20 y65 gSetShakeGuagePosition, Shake Guage (Far Left Of Pan Storage)
+Gui, Add, Button, x20 y40 gSetDigGuagePosition, Dig Repeat Position
+Gui, Add, Button, x20 y65 gSetShakeGuagePosition, Shake Hold Position
 
 Gui, Add, GroupBox, x10 y100 w280 h95, Sell Settings
 Gui, Add, CheckBox, x20 y115 vAutoSell Checked%AutoSell%, Auto-Sell Items
@@ -71,10 +71,6 @@ Gui, Add, Button, x10 y390 w140 h30 gStartMacro, Start Macro (F1)
 Gui, Add, Button, x150 y390 w140 h30 Reload, Stop Macro (F2)
 
 Gui, Show, w300 h430, Prospecting Macro
-return
-
-GuiClose:
-ExitApp
 return
 
 SendDiscordMessage(webhookURL, message) {
@@ -112,14 +108,17 @@ if (DirectionChoice = "Forward/Backward") {
 }
 GuiControl,, FirstDir, %FirstDir%
 GuiControl,, SecondDir, %SecondDir%
+IniWrite, %DirectionChoice%, settings.ini, Config, DirectionChoice
+IniWrite, %FirstDir%, settings.ini, Config, FirstDir
+IniWrite, %SecondDir%, settings.ini, Config, SecondDir
 return
 
 SetSellPosition:
 Gui, Hide
-ToolTip, Click on Sell All button to set its position
+ToolTip, Click on Sell All button to set its position.
 KeyWait, LButton, D
 MouseGetPos, SellX, SellY
-ToolTip, Sell All Position set!
+ToolTip, Position Set!
 Sleep, 1000
 ToolTip
 Gui, Show
@@ -127,8 +126,8 @@ return
 
 SetDigHoldPosition:
 Gui, Hide
-ToolTip, Click on the green area of the dig charge bar
-KeyWait, LButton, D
+ToolTip, Hover over the green area of the dig charge bar and press space to set the position.
+KeyWait, Space, D
 MouseGetPos, DigX, DigY
 ToolTip, Position Set!
 Sleep, 1000
@@ -138,7 +137,7 @@ return
 
 SetDigGuagePosition:
 Gui, Hide
-ToolTip, Click on the far left of the pan storage
+ToolTip, Click on the far left of the pan fill area. (GRAY AREA)
 KeyWait, LButton, D
 MouseGetPos, DigGX, DigGY
 ToolTip, Position Set!
@@ -149,7 +148,7 @@ return
 
 SetShakeGuagePosition:
 Gui, Hide
-ToolTip, Click on the far right of the pan storage
+ToolTip, Click on the far right of the pan fill area. (GRAY AREA)
 KeyWait, LButton, D
 MouseGetPos, ShakeX, ShakeY
 ToolTip, Position Set!
@@ -161,11 +160,11 @@ return
 SaveSettings:
 Gui, Submit, NoHide
 IniWrite, %DigX%, settings.ini, Config, DigX
-IniWrite, %Dig%, settings.ini, Config, DigY
+IniWrite, %DigY%, settings.ini, Config, DigY
 IniWrite, %DigGX%, settings.ini, Config, DigGX
-IniWrite, %DigG%, settings.ini, Config, DigGY
+IniWrite, %DigGY%, settings.ini, Config, DigGY
 IniWrite, %ShakeX%, settings.ini, Config, ShakeX
-IniWrite, %Shake%, settings.ini, Config, ShakeY
+IniWrite, %ShakeY%, settings.ini, Config, ShakeY
 IniWrite, %ActionDelay%, settings.ini, Config, ActionDelay
 IniWrite, %AutoSell%, settings.ini, Config, AutoSell
 IniWrite, %SellRate%, settings.ini, Config, SellRate
@@ -209,7 +208,7 @@ while (MacroRunning) {
             PixelGetColor, PixelColor, DigX, DigY, RGB
             if (PixelColor = 0xFFFFFF)
                 break
-            Sleep, 5
+            Sleep, 2
         }
         Click up
         Sleep, 1500
