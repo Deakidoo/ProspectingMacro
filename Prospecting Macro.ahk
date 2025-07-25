@@ -1,4 +1,5 @@
 ; Created by Deakidoo!
+; https://github.com/Deakidoo/ProspectingMacro
 
 #NoEnv
 #SingleInstance
@@ -20,7 +21,7 @@ global SellRate := 0
 global DirectionChoice := Left/Right
 global FirstDir := a
 global SecondDir := d
-global webhookURL :=
+global webhookURL := 0
 global MacroRunning := false
 global MacroPaused := false
 
@@ -42,9 +43,9 @@ IniRead, SecondDir, settings.ini, Config, SecondDir, %SecondDir%
 IniRead, webhookURL, settings.ini, Config, webhookURL, %webhookURL%
 
 Gui, Add, GroupBox, x10 y0 w280 h95, Positions
-Gui, Add, Button, x20 y15 gSetDigHoldPosition, Dig Charge Position
-Gui, Add, Button, x20 y40 gSetDigGuagePosition, Dig Repeat Position
-Gui, Add, Button, x20 y65 gSetShakeGuagePosition, Shake Hold Position
+Gui, Add, Button, x20 y15 gSetDigHoldPosition, Set Dig Charge Position
+Gui, Add, Button, x20 y40 gSetDigGuagePosition, Set Dig Repeat Position
+Gui, Add, Button, x20 y65 gSetShakeGuagePosition, Set Shake Hold Position
 
 Gui, Add, GroupBox, x10 y100 w280 h95, Sell Settings
 Gui, Add, CheckBox, x20 y115 vAutoSell Checked%AutoSell%, Auto-Sell Items
@@ -53,7 +54,7 @@ Gui, Add, Text, x55 y138, Sell every X Loops
 Gui, Add, Button, x20 y160 gSetSellPosition, Set Sell All Button Position
 
 Gui, Add, GroupBox, x10 y200 w280 h75, Movement Settings
-Gui, Add, DropDownList, x20 y220 vDirectionChoice gUpdateDirection, Forward/Backward|Left/Right
+Gui, Add, DropDownList, x20 y220 vDirectionChoice gUpdateDirection, Left/Right|Foward/Backward
 GuiControl, ChooseString, DirectionChoice, %savedChoice%
 Gui, Add, Text, x150 y223, Movement Type
 Gui, Add, Edit, x20 y245 w30 h20 vDirectionTime, %DirectionTime%
@@ -108,9 +109,6 @@ if (DirectionChoice = "Forward/Backward") {
 }
 GuiControl,, FirstDir, %FirstDir%
 GuiControl,, SecondDir, %SecondDir%
-IniWrite, %DirectionChoice%, settings.ini, Config, DirectionChoice
-IniWrite, %FirstDir%, settings.ini, Config, FirstDir
-IniWrite, %SecondDir%, settings.ini, Config, SecondDir
 return
 
 SetSellPosition:
@@ -182,7 +180,7 @@ return
 
 StartMacro:
 Gui, Submit, NoHide
-SendDiscordMessage(webhookURL, " Macro Started" )
+SendDiscordMessage(webhookURL, " Macro Started")
 global Loop = 0
 MacroRunning := true
 SetTimer, MacroLoop, -1
@@ -208,7 +206,7 @@ while (MacroRunning) {
             PixelGetColor, PixelColor, DigX, DigY, RGB
             if (PixelColor = 0xFFFFFF)
                 break
-            Sleep, 2
+            Sleep, 1
         }
         Click up
         Sleep, 1500
@@ -221,16 +219,16 @@ while (MacroRunning) {
     Send {%SecondDir% up}
     Sleep, % ActionDelay * 1000
     
+    ToolTip, Shaking
     Click down
     Sleep 1000
     Click up
-    ToolTip, Shaking
     Click down
     Loop {
         PixelGetColor, PixelColor, ShakeX, ShakeY, RGB
         if (PixelColor = 0x8C8C8C)
             break
-        Sleep, 10
+        Sleep, 5
     }
     Click up
     Sleep 1500
@@ -240,14 +238,14 @@ while (MacroRunning) {
         Loop := 0
         Send g
         Sleep, 1000
-        Random, randX, -10, 10
-        Random, randY, -10, 10
+        Random, randX, -3, 3
+        Random, randY, -3, 3
         MouseMove, % SellX+randX, % SellY+randY, 0
         Sleep, 250
         Click
         Click
         Click
-        SendDiscordMessage(webhookURL, " Auto Sold!" )
+        SendDiscordMessage(webhookURL, " Auto Sold")
         Sleep, 3500
         Send g
     }
